@@ -1,6 +1,7 @@
 module Covid19
 
-using CSV, DataFrames, Query, HTTP
+using CSV, DataFrames, HTTP, DataConvenience
+using Chain: @chain
 
 export data, data_without_world
 
@@ -8,8 +9,8 @@ url_loc = "https://covid.ourworldindata.org/data/ecdc/locations.csv"
 url_full = "https://covid.ourworldindata.org/data/ecdc/full_data.csv"
 
 function data()
-    loc = CSV.File(HTTP.get(url_loc).body) |> DataFrame
-    raw_cases = CSV.File(HTTP.get(url_full).body) |> DataFrame
+    loc = HTTP.get(url_loc).body |> CSV.File |> DataFrame
+    raw_cases = HTTP.get(url_full).body |> CSV.File |> DataFrame
 
     cases = coalesce.(raw_cases, 0.0)
 
@@ -27,13 +28,16 @@ end
 
 
 function data_primary_columns()
-    data() |>
-    @select(:date, :location, :new_cases, :new_deaths)
+    @chain data() begin
+        select(:date, :location, :new_cases, :new_deaths)
+    end
 end
 
 
 function data_without_world()
-    data() |> @filter(_.location != "World")
+    @chain data() begin
+        filter(:location => !(==("World")), _)
+    end
 end
 
 
