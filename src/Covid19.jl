@@ -1,9 +1,9 @@
 module Covid19
 
-using CSV, DataFrames, HTTP, DataConvenience
+using CSV, DataFrames, HTTP
 using Chain: @chain
 
-export data, data_without_world
+export data, data_without_world, data_primary_columns
 
 url_loc = "https://covid.ourworldindata.org/data/ecdc/locations.csv"
 url_full = "https://covid.ourworldindata.org/data/ecdc/full_data.csv"
